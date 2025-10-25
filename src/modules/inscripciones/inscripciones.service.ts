@@ -51,5 +51,5 @@ export class InscripcionesService {
     inscripcion.estado = EstadoInscripcion.RETIRADO;
     return this.inscripcionRepository.save(inscripcion);
   }
-
+  
 }
