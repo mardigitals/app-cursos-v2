@@ -13,7 +13,12 @@ async function bootstrap() {
       transform: true, // Usa class-transformer para transformar payloads a instancias de DTO
   }));
 
-
+  // === CONFIGURACIÓN CORS ===
+  app.enableCors({
+    origin: 'http://localhost:5173', // El origen de tu frontend de Vite
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
