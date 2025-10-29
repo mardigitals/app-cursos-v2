@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Unique,PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Alumno } from '../../alumnos/entities/alumno.entity'; // RUTA CORREGIDA
 import { Curso } from '../../cursos/entities/curso.entity';   // RUTA CORREGIDA
 import { Nota } from '../../notas/entities/nota.entity';       // RUTA CORREGIDA (Asumiendo que seguirás el mismo patrón para Notas)
@@ -10,7 +10,7 @@ export enum EstadoInscripcion {
   COMPLETADO = 'COMPLETADO',
   RETIRADO = 'RETIRADO',
 }
-
+@Unique(["alumnoLegajo", "cursoId"])
 @Entity('inscripciones')
 export class Inscripcion {
   @PrimaryGeneratedColumn()
