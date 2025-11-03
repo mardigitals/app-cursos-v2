@@ -9,6 +9,7 @@ import { CursosModule } from './modules/cursos/cursos.module';
 import { ProfesoresModule } from './modules/profesores/profesores.module';
 import { InscripcionesModule } from './modules/inscripciones/inscripciones.module';
 import { NotasModule } from './modules/notas/notas.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 
 @Module({
@@ -38,6 +39,7 @@ import { NotasModule } from './modules/notas/notas.module';
     ProfesoresModule,  
     InscripcionesModule,
     NotasModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
