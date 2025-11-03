@@ -1,5 +1,3 @@
-// En: src/dashboard/dashboard.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,7 +6,7 @@ import { Curso } from '../cursos/entities/curso.entity';
 import { Inscripcion, EstadoInscripcion } from '../inscripciones/entities/inscripcione.entity';
 import { Profesor } from '../profesores/entities/profesore.entity';
 
-// Estructura de la respuesta
+
 export interface DashboardStats {
   kpis: {
     totalAlumnosActivos: number;
@@ -37,7 +35,6 @@ export class DashboardService {
 
   async getStats(): Promise<DashboardStats> {
     
-    // --- 1. KPIs (Sin cambios) ---
     const totalAlumnosActivos = await this.alumnoRepository.count({ where: { activo: true } });
     const totalCursosActivos = await this.cursoRepository.count({ where: { activo: true } });
     const totalProfesoresActivos = await this.profesorRepository.count({ where: { activo: true } });
@@ -52,7 +49,6 @@ export class DashboardService {
       .groupBy("insc.estado")
       .getRawMany();
 
-    // --- ¡CORRECCIÓN! Convertimos el 'value' (string) a 'value' (number) ---
     const inscripcionesPorEstado = inscripcionesRaw.map(item => ({
         name: item.name,
         value: parseInt(item.value, 10) || 0 // Parsea a número
@@ -72,10 +68,10 @@ export class DashboardService {
       .limit(10)
       .getRawMany();
     
-    // --- ¡CORRECCIÓN! Convertimos el 'value' (string) a 'value' (number) ---
+
     const alumnosPorCurso = cursosRaw.map(item => ({
         name: item.name,
-        value: parseInt(item.value, 10) || 0 // Parsea a número
+        value: parseInt(item.value, 10) || 0 
     })).filter(c => c.value > 0); // Filtramos los que tienen 0 alumnos
 
     // --- 4. Retorno de datos ---

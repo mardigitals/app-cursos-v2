@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm'; // <-- 1. DataSource importado
+import { Repository, DataSource } from 'typeorm'; 
 import { Profesor } from './entities/profesore.entity';
 import { CreateProfesorDto } from './dto/create-profesor.dto';
 import { UpdateProfesorDto } from './dto/update-profesor.dto';
-import { Curso } from '../cursos/entities/curso.entity'; // <-- 2. Curso importado
+import { Curso } from '../cursos/entities/curso.entity'; 
 
 @Injectable()
 export class ProfesoresService {
@@ -12,18 +12,17 @@ export class ProfesoresService {
     @InjectRepository(Profesor)
     private readonly profesorRepository: Repository<Profesor>,
     
-    // --- 3. INYECCIÓN AÑADIDA ---
     // (Necesaria para poder ejecutar la transacción)
     private dataSource: DataSource,
   ) {}
 
-  // 1. Crear Profesor (Sin cambios)
+  // 1. Crear Profesor
   async create(createDto: CreateProfesorDto): Promise<Profesor> {
     const nuevoProfesor = this.profesorRepository.create(createDto);
     return this.profesorRepository.save(nuevoProfesor);
   }
 
-  // 2. Obtener todos los Profesores (Sin cambios)
+  // 2. Obtener todos los Profesores 
   findAll(): Promise<Profesor[]> {
     return this.profesorRepository.find({
       relations: ['cursos'],
@@ -34,7 +33,7 @@ export class ProfesoresService {
     });
   }
 
-  // 3. Obtener uno por Legajo (Sin cambios)
+  // 3. Obtener uno por Legajo 
   async findOne(legajoProfesor: number): Promise<Profesor> {
     const profesor = await this.profesorRepository.findOne({
       where: { legajoProfesor },
@@ -47,7 +46,7 @@ export class ProfesoresService {
     return profesor;
   }
 
-  // 4. Actualizar Profesor (Sin cambios)
+  // 4. Actualizar Profesor 
   async update(legajoProfesor: number, updateDto: UpdateProfesorDto): Promise<Profesor> {
     const profesor = await this.findOne(legajoProfesor); 
     this.profesorRepository.merge(profesor, updateDto);
@@ -70,7 +69,7 @@ export class ProfesoresService {
         }
 
         // 2. LÓGICA DE CASCADA: Actualizamos los cursos
-        // Ponemos 'profesorLegajo = null' en todos los cursos que dicta este profesor
+        
         await transactionalEntityManager.update(
             Curso, // Entidad a actualizar
             { profesorLegajo: legajoProfesor }, // Cláusula 'where'
@@ -85,7 +84,7 @@ export class ProfesoresService {
     });
   }
 
-  // 6. Reactivar (Sin cambios)
+  // 6. Reactivar 
   async reactivate(legajoProfesor: number): Promise<Profesor> {
     const profesor = await this.findOne(legajoProfesor);
     profesor.activo = true;

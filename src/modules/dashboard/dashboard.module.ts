@@ -9,7 +9,7 @@ import { Inscripcion } from '../inscripciones/entities/inscripcione.entity';
 
 @Module({
   imports: [
-    // Importamos todas las entidades que necesitamos leer
+
     TypeOrmModule.forFeature([
       Alumno, 
       Profesor, 

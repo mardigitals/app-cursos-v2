@@ -15,7 +15,6 @@ export class Nota {
   @Column({ type: 'datetime', default: () => 'now()' }) 
   fechaRegistro: Date; 
 
-  // --- Relación con Inscripción (Muchos a Uno) ---
   @ManyToOne(() => Inscripcion, (inscripcion) => inscripcion.notas)
   @JoinColumn({ name: 'inscripcionId', referencedColumnName: 'id' })
   inscripcion: Inscripcion;

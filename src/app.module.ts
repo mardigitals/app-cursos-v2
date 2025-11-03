@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-// Importa todos los módulos que contienen entidades:
 import { AlumnosModule } from './modules/alumnos/alumnos.module';
 import { CursosModule } from './modules/cursos/cursos.module';
 import { ProfesoresModule } from './modules/profesores/profesores.module';
@@ -33,7 +32,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
       inject: [ConfigService],
     }),
 
-    //  Importación de TODOS los módulos de entidades:
+    //  Importación de modulos de entidades 
     AlumnosModule,     
     CursosModule,      
     ProfesoresModule,  

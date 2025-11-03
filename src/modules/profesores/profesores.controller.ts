@@ -13,7 +13,7 @@ import {
 import { ProfesoresService } from './profesores.service';
 import { CreateProfesorDto } from './dto/create-profesor.dto';
 import { UpdateProfesorDto } from './dto/update-profesor.dto';
-import { Profesor } from './entities/profesore.entity'; // Tipificación
+import { Profesor } from './entities/profesore.entity'; 
 
 @Controller('profesores')
 export class ProfesoresController {
@@ -53,12 +53,6 @@ export class ProfesoresController {
     return this.profesoresService.remove(legajo).then(() => {}); 
   }
 
-  // --- ¡NUEVO ENDPOINT AÑADIDO! ---
-
-  /**
-   * Endpoint para reactivar un profesor (baja lógica inversa).
-   * Llama al servicio reactivate que cambia activo a 'true'.
-   */
   // PATCH /profesores/:legajo/reactivate
   @Patch(':legajo/reactivate')
   reactivate(@Param('legajo', ParseIntPipe) legajo: number): Promise<Profesor> {

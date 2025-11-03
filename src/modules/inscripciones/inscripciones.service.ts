@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common'; // <-- 1. Añadido BadRequestException
+import { ConflictException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inscripcion, EstadoInscripcion } from './entities/inscripcione.entity';
@@ -16,28 +16,26 @@ export class InscripcionesService {
     private readonly cursosService: CursosService,   
 ) {}
 
-  // --- 2. MÉTODO 'create' ACTUALIZADO CON VALIDACIÓN ---
-  async create(createDto: CreateInscripcioneDto): Promise<Inscripcion> {
+  // --- 1. MÉTODO 'create'
+  async create(createDto: CreateInscripcioneDto): Promise<Inscripcion> {
     
     // 1. Validar Alumno
     const alumno = await this.alumnosService.findOne(createDto.alumnoLegajo);
-    // (findOne ya NO filtra por activo, lo validamos manualmente)
-    if (!alumno.activo) {
-      throw new BadRequestException(
-        `El alumno ${alumno.nombre} ${alumno.apellido} (Legajo: ${alumno.legajoAlumno}) está inactivo y no puede ser inscrito.`
-      );
-    }
+    if (!alumno.activo) {
+      throw new BadRequestException(
+        `El alumno ${alumno.nombre} ${alumno.apellido} (Legajo: ${alumno.legajoAlumno}) está inactivo y no puede ser inscrito.`
+      );
+    }
     
     // 2. Validar Curso
     const curso = await this.cursosService.findOne(createDto.cursoId);
-    // (findOne ya NO filtra por activo, lo validamos manualmente)
-    if (!curso.activo) {
-      throw new BadRequestException(
-        `El curso "${curso.nombre}" (ID: ${curso.id}) está inactivo y no acepta nuevas inscripciones.`
-      );
-    }
+    if (!curso.activo) {
+      throw new BadRequestException(
+        `El curso "${curso.nombre}" (ID: ${curso.id}) está inactivo y no acepta nuevas inscripciones.`
+      );
+    }
     
-    // 3. Validar Duplicado (Sin cambios)
+    // 3. Validar Duplicado 
     const inscripcionExistente = await this.inscripcionRepository.findOne({
       where: { 
           alumnoLegajo: alumno.legajoAlumno, 
@@ -49,34 +47,32 @@ export class InscripcionesService {
       throw new ConflictException('El alumno ya está inscrito en este curso.');
     }
 
-    // 4. Crear la entidad si todo está bien (Sin cambios)
+    // 4. Crear entidad
     const inscripcion = this.inscripcionRepository.create({
       ...createDto, 
       alumno: alumno, 
       curso: curso, 
-      // El estado por defecto ('INSCRITO') se toma de la entidad
     });
     
     return this.inscripcionRepository.save(inscripcion);
-  }
+  }
 
-  // --- 3. MÉTODO 'findAll' ACTUALIZADO CON ORDEN ---
+
   findAll(): Promise<Inscripcion[]> {
     return this.inscripcionRepository.find({
       relations: ['alumno', 'curso', 'notas'],
-      // --- LÓGICA DE ORDEN AÑADIDA ---
-      order: {
-        estado: 'ASC', // Ordena alfabéticamente (ACTIVO, COMPLETADO, INSCRITO, RETIRADO)
-        id: 'DESC'     // Como segundo criterio, las más nuevas primero
-      }
+      order: {
+        estado: 'ASC', 
+        id: 'DESC'     
+      }
     });
   }
 
-  // 3. Obtener una inscripción por id (Sin cambios)
+
   async findOne(id: number): Promise<Inscripcion> {
     const inscripcion = await this.inscripcionRepository.findOne({
       where: { id },
-      relations: ['alumno', 'curso', 'notas'],
+      relations: ['alumno', 'curso', 'notas'], // <-- Carga Alumno y Curso
     });
 
     if (!inscripcion) {
@@ -85,24 +81,42 @@ export class InscripcionesService {
     return inscripcion;
   }
 
-  // 4. Actualizar inscripción (Sin cambios)
+  
   async update(id: number, updateDto: UpdateInscripcioneDto): Promise<Inscripcion> {
-    const inscripcion = await this.findOne(id);
-    // (Aquí podríamos añadir validaciones, p.ej. no permitir cambiar estado si el alumno está inactivo)
-    this.inscripcionRepository.merge(inscripcion, updateDto);
-    return this.inscripcionRepository.save(inscripcion);
+    
+    // 1. Buscamos la inscripción con todas sus relaciones (usamos el 'findOne' que ya es robusto)
+    const inscripcionAValidar = await this.findOne(id); 
+
+    // Solo validamos si se intenta cambiar el estado
+    if (updateDto.estado) { 
+      
+        // VALIDACIÓN: Alumno Inactivo
+        if (!inscripcionAValidar.alumno.activo) { 
+          throw new BadRequestException(
+            `Operación rechazada: El alumno ${inscripcionAValidar.alumno.nombre} ${inscripcionAValidar.alumno.apellido} está inactivo y su inscripción no puede ser modificada.`
+          );
+        }
+
+        // VALIDACIÓN: Curso Inactivo (¡EL PUNTO CLAVE!)
+        if (!inscripcionAValidar.curso.activo) { 
+            throw new BadRequestException(
+                `Operación rechazada: El curso "${inscripcionAValidar.curso.nombre}" está inactivo y su inscripción no puede ser modificada.`
+            );
+        }
+    }
+
+    this.inscripcionRepository.merge(inscripcionAValidar, updateDto);
+    return this.inscripcionRepository.save(inscripcionAValidar);
   }
 
-  // --- 5. MÉTODO 'remove' CORREGIDO (BAJA LÓGICA) ---
-  // (En lugar de un borrado físico, cambiamos el estado a RETIRADO)
-  async remove(id: number): Promise<Inscripcion> { 
-    // 1. Busca la inscripción
+
+  async remove(id: number): Promise<Inscripcion> { 
+
     const inscripcion = await this.findOne(id);
 
-    // 2. Ejecuta la BAJA LÓGICA
-    inscripcion.estado = EstadoInscripcion.RETIRADO; 
 
-    // 3. Guarda y retorna la entidad actualizada
+    inscripcion.estado = EstadoInscripcion.RETIRADO; 
+
     return this.inscripcionRepository.save(inscripcion);
-  }
+  }
 }

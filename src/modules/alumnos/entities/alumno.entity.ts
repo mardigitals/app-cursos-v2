@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Inscripcion } from '../../inscripciones/entities/inscripcione.entity'; // Importación para la relación
+import { Inscripcion } from '../../inscripciones/entities/inscripcione.entity'; 
 
 @Entity('alumnos') 
 export class Alumno {
-  // Clave primaria autoincremental (Matrícula/Legajo de Alumno)
+
   @PrimaryGeneratedColumn()
   legajoAlumno: number; 
   
@@ -28,7 +28,6 @@ export class Alumno {
   @Column({ default: true }) 
   activo: boolean; 
 
-  // AÑADIDO: Relación Uno a Muchos con Inscripción (la lista de cursos del alumno)
   @OneToMany(() => Inscripcion, (inscripcion) => inscripcion.alumno)
   inscripciones: Inscripcion[];
 }
